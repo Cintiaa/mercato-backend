@@ -1,55 +1,79 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { User } from "./entities/user.entity";
 import { Repository } from "typeorm";
-import * as argon2 from "argon2";
+
+import { User } from "./entities/user.entity";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { UserDto } from "./dto/user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { FindUserDto } from "./dto/find-user.dto";
+import { TransformUtil } from "../common/utils/transform.util";
+import { HashUtil } from "../common/utils/hash.util";
 
 @Injectable()
-export class UsersService {
+export class UserService {
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
+    private readonly transformUtil: TransformUtil,
+    private readonly hashUtil: HashUtil
   ) {}
 
-  async create(email: string, password: string): Promise<User> {
-    const hashPassword = await this.hashPassword(password);
+  async create(createUserDto: CreateUserDto): Promise<UserDto> {
+    const { email, password } = createUserDto;
+
+    const hashPassword = await this.hashUtil.hashPassword(password);
 
     const user = this.userRepository.create({ email, password: hashPassword });
-    return this.userRepository.save(user);
+    const userCreate = await this.userRepository.save(user);
+
+    return this.transformUtil.toUserDto(userCreate);
   }
 
-  async findAll(): Promise<User[]> {
-    return this.userRepository.find();
+  async findAll(): Promise<FindUserDto[]> {
+    const user = await this.userRepository.find();
+    return user.map((u) => {
+      return this.transformUtil.toUserFindDto(u);
+    });
   }
 
-  async findOne(id: number): Promise<User | null> {
-    return this.userRepository.findOne({ where: { id } })
+  async findOne(id: number): Promise<FindUserDto | null> {
+    const user = await this.userRepository.findOne({ where: { id } });
+
+    if (!user) {
+      return null;
+    }
+
+    return this.transformUtil.toUserFindDto(user);
   }
 
-  async hashPassword(password: string): Promise<string> {
-    return await argon2.hash(password);
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { email } });
   }
 
-  async verifyPassword(hash: string, password: string): Promise<boolean> {
-    return await argon2.verify(hash, password);
-  }
+  async updatePassword(
+    id: number,
+    updateUserDto: UpdateUserDto
+  ): Promise<UserDto> {
+    const { password, confirmPassword } = updateUserDto;
+    const isEmpy = !password || !confirmPassword;
+    const isInvalid = password !== confirmPassword;
 
-  async validateUserPassword(
-    email: string,
-    password: string
-  ): Promise<User | null> {
-    const user = await this.userRepository.findOne({ where: { email } });
+    if (isEmpy || isInvalid) {
+      throw new BadRequestException("Invalid credentials");
+    }
+
+    const user = await this.userRepository.findOne({ where: { id } });
 
     if (!user) {
       throw new BadRequestException("Invalid credentials");
     }
+    const hashPassword = await this.hashUtil.hashPassword(password);
 
-    const isPasswordValid = await this.verifyPassword(user.password, password);
+    user.password = hashPassword;
+    user.updatedatPassword = new Date();
+    const userCreate = await this.userRepository.save(user);
 
-    if (!isPasswordValid) {
-      throw new BadRequestException("Invalid credentials");
-    }
-
-    return user;
+    return this.transformUtil.toUserDto(userCreate);
   }
 }

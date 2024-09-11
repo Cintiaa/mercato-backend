@@ -1,11 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column()
+  @Column({unique: true})
   email!: string;
 
   @Column()
@@ -16,4 +16,7 @@ export class User {
 
   @Column({ type: "datetime", nullable: true })
   lastAccess!: Date | null;
+
+  @Column({type: 'datetime', nullable: true})
+  updatedatPassword!: Date | null
 }
