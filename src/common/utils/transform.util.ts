@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { User } from "../../user/entities/user.entity";
-import { UserDto } from "../../user/dto/user.dto";
-import { FindUserDto } from "../../user/dto/find-user.dto";
+import { User } from "../../users/entities/user.entity";
+import { UserDto } from "../../users/dto/user.dto";
+import { FindUserDto } from "../../users/dto/find-user.dto";
 
 @Injectable()
 export class TransformUtil {
@@ -15,6 +15,8 @@ export class TransformUtil {
   toUserFindDto(user: User): FindUserDto {
     return {
       id: user.id,
+      name: user.name,
+      surname: user.surname,
       email: user.email,
       isActive: user.isActive,
       lastAccess: user.lastAccess,

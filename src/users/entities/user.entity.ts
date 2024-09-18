@@ -5,6 +5,12 @@ export class User {
   @PrimaryGeneratedColumn()
   id!: number;
 
+  @Column() 
+  name!: string;
+
+  @Column()
+  surname!: string;
+  
   @Column({unique: true})
   email!: string;
 
@@ -15,8 +21,8 @@ export class User {
   isActive!: boolean;
 
   @Column({ type: "datetime", nullable: true })
-  lastAccess!: Date | null;
+  lastAccess?: Date | null;
 
   @Column({type: 'datetime', nullable: true})
-  updatedatPassword!: Date | null
+  updatedatPassword?: Date | null
 }

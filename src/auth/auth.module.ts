@@ -3,7 +3,7 @@ import { AuthService } from "./auth.service";
 import { AuthController } from "./auth.controller";
 import { PassportModule } from "@nestjs/passport";
 import { JwtModule } from "@nestjs/jwt";
-import { UserModule } from "../user/user.module";
+import { UsersModule } from "../users/users.module";
 import { JwtStrategy } from "./strategy/jwt.strategy";
 import { TransformUtil } from "../common/utils/transform.util";
 import { HashUtil } from "../common/utils/hash.util";
@@ -13,11 +13,12 @@ import { HashUtil } from "../common/utils/hash.util";
     PassportModule,
     JwtModule.register({
       secret: Bun.env["JWT_SECRET"],
-      signOptions: { expiresIn: "1h" },
+      signOptions: { expiresIn: Bun.env["EXPIRESIN"] },
     }),
-    UserModule,
+    UsersModule,
   ],
   providers: [AuthService, JwtStrategy, TransformUtil, HashUtil],
   controllers: [AuthController],
+  exports: [AuthService]
 })
 export class AuthModule {}

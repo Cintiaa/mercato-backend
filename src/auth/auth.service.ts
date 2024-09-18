@@ -1,44 +1,45 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 
-import { UserService } from "../user/user.service";
-import { UserDto } from "../user/dto/user.dto";
-import { HashUtil } from "../common/utils/hash.util";
+import { UsersService } from "../users/users.service";
+import { UserDto } from "../users/dto/user.dto";
 import { TransformUtil } from "../common/utils/transform.util";
 import { JwtPayloadDto } from "./dto/jwt-payload.dto";
+import { LoginUserDto } from "../users/dto/login-user.dto";
 
 @Injectable()
 export class AuthService {
   constructor(
-    private userService: UserService,
+    private UsersService: UsersService,
     private jwtService: JwtService,
-    private hashUtil: HashUtil,
     private transformUtil: TransformUtil
   ) {}
 
-  async validateUser(email: string, password: string): Promise<UserDto> {
-    const user = await this.userService.findByEmail(email);
-
-    if (!user || !user.isActive) {
-      throw new UnauthorizedException("Invalid credentials");
-    }
-
-    const isPasswordValid = await this.hashUtil.verifyPassword(
-      user.password,
-      password
-    );
-
-    if (!isPasswordValid) {
-      throw new UnauthorizedException("Invalid credentials");
-    }
+  async validateUser(payload: JwtPayloadDto): Promise<UserDto> {
+    const user = await this.UsersService.findByUserActive(payload.email);
 
     return this.transformUtil.toUserDto(user);
   }
 
-  async login(user: UserDto) {
+  async login(loginUserDto: LoginUserDto): Promise<{access_token: string}> {
+    const user = await this.UsersService.findByUserLogin(loginUserDto);
+
+    if (!user) {
+      return { access_token: "" };
+    }
+
+    const token = await this.createToken(user);
+    await this.UsersService.updateAccess(user.id)
+
+    return {
+      access_token: token.Authorization,
+    };
+  }
+
+  private async createToken(user: UserDto): Promise<any> {
     const payload: JwtPayloadDto = { email: user.email, sub: user.id };
     return {
-      access_token: this.jwtService.sign(payload),
+      Authorization: await this.jwtService.signAsync(payload),
     };
   }
 }
