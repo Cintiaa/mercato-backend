@@ -12,5 +12,7 @@ export class UpdatePasswordDto extends PartialType(CreateUserDto) {
   @ApiProperty()
   confirmPassword!: string;
 
+  updatedat!: Date;
+
   updatedatPassword?: Date | null;
 }

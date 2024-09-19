@@ -24,5 +24,9 @@ export class CreateUserDto {
 
   lastAccess?: Date | null;
 
+  createdat!: Date;
+
+  updatedat!: Date;
+
   updatePassword?: Date | null;
 }

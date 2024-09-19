@@ -28,18 +28,18 @@ export class AuthService {
       return { access_token: "" };
     }
 
-    const token = await this.createToken(user);
+    const {access_token} = await this.createToken(user);
     await this.UsersService.updateAccess(user.id)
 
     return {
-      access_token: token.Authorization,
+      access_token
     };
   }
 
   private async createToken(user: UserDto): Promise<any> {
     const payload: JwtPayloadDto = { email: user.email, sub: user.id };
     return {
-      Authorization: await this.jwtService.signAsync(payload),
+      access_token: await this.jwtService.signAsync(payload),
     };
   }
 }

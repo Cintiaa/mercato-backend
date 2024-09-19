@@ -21,6 +21,8 @@ export class TransformUtil {
       isActive: user.isActive,
       lastAccess: user.lastAccess,
       updatedatPassword: user.updatedatPassword,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
     };
   }
 }

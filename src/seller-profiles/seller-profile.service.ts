@@ -3,7 +3,7 @@ import { CreateSellerProfileDto } from './dto/create-seller-profile.dto';
 import { UpdateSellerProfileDto } from './dto/update-seller-profile.dto';
 
 @Injectable()
-export class SellerProfileService {
+export class SellerProfilesService {
   create(createSellerProfileDto: CreateSellerProfileDto) {
     return 'This action adds a new sellerProfile';
   }

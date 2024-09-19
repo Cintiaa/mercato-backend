@@ -4,6 +4,7 @@ import { AuthController } from "./auth.controller";
 import { PassportModule } from "@nestjs/passport";
 import { JwtModule } from "@nestjs/jwt";
 import { UsersModule } from "../users/users.module";
+import { LocalStrategy } from "./strategy/local.strategy";
 import { JwtStrategy } from "./strategy/jwt.strategy";
 import { TransformUtil } from "../common/utils/transform.util";
 import { HashUtil } from "../common/utils/hash.util";
@@ -17,7 +18,7 @@ import { HashUtil } from "../common/utils/hash.util";
     }),
     UsersModule,
   ],
-  providers: [AuthService, JwtStrategy, TransformUtil, HashUtil],
+  providers: [AuthService, LocalStrategy, JwtStrategy, TransformUtil, HashUtil],
   controllers: [AuthController],
   exports: [AuthService]
 })

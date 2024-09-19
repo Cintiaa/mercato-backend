@@ -8,4 +8,6 @@ export class FindUserDto implements IUserFind {
   isActive!: boolean;
   lastAccess?: Date | null;
   updatedatPassword?: Date | null;
+  createdAt!: Date;
+  updatedAt!: Date;
 }

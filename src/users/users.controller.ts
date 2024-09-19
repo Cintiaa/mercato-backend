@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   ClassSerializerInterceptor,
   Controller,
@@ -6,7 +7,6 @@ import {
   Param,
   Post,
   Put,
-  Req,
   Request,
   UseGuards,
   UseInterceptors,
@@ -27,11 +27,17 @@ export class UsersController {
     return this.UsersService.create(createUserDto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiSecurity("access-key")
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get()
   async findAll() {
     return this.UsersService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiSecurity("access-key")
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get(":id")
   findOne(@Param("id") id: string) {
     return this.UsersService.findOne(+id);
@@ -50,8 +56,10 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiSecurity("access-key")
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get("profile")
-  getProfile(@Req() req: Request) {
-    return req;
+  getProfile(@Request() req: any) {
+    return req.user;
   }
 }
